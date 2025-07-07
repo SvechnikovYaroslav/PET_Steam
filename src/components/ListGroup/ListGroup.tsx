@@ -1,4 +1,7 @@
 import { useState } from "react";
+import './ListGroup.css';
+import { BiSolidCity } from "react-icons/bi";
+import Like from "../Like/Like";
 
 interface Props {
   items: string[];
@@ -14,19 +17,23 @@ function ListGroup({items, heading}: Props) {
       {items.length === 0 && <p> No items found </p>}
       <ul className="list-group">
         {items.map((item, index) => (
+          <>
           <li
             className={
               selectedIndex === index
-                ? "list-group-item active"
-                : "list-group-item"
+              ? "list-group-item active"
+              : "list-group-item"
             }
             key={item}
             onClick={() => {
               setSelectedIndex(index);
             }}
-          >
-            {item}
+            >
+            {item} 
+          <BiSolidCity />
+          <Like onClick={()=> {console.log("Clicked")}}/>
           </li>
+            </>
         ))}
       </ul>
     </>
