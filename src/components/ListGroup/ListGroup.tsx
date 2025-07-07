@@ -31,7 +31,7 @@ function ListGroup({items, heading}: Props) {
             >
             {item} 
           <BiSolidCity />
-          <Like onClick={()=> {console.log("Clicked")}}/>
+          <Like onClick={()=> { console.log("Clicked")}}/>
           </li>
             </>
         ))}
