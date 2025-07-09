@@ -1,16 +1,10 @@
-import Cart from "./components/Cart";
-import NavBar from "./components/NavBar";
-import { useState } from "react";
+import Form from "./components/ListGroup/Form";
 
 function App() {
-  const [cartItems, setCartItems] = useState(["Product1", "Product2"]);
-
   return (
     <div>
-      <NavBar cartItemsCount={cartItems.length}></NavBar>
-      <Cart cartItems={cartItems} onClear={() => setCartItems([])} />
+      <Form />
     </div>
   );
 }
-
 export default App;
