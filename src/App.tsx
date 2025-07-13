@@ -1,49 +1,75 @@
-import { useState } from "react";
-import ExpenseList from "./expense-tracker/components/ExpenseList";
-import ExpenseFilter from "./expense-tracker/components/ExpenseFilter";
-import ExpenseForm from "./expense-tracker/components/ExpenseForm";
-import categories from "./expense-tracker/categories";
+import { User } from "./services/user-service";
+import userService from "./services/user-service";
+import useUsers from "./hooks/useUsers";
 
 function App() {
-  const [selecteCategory, setSelectedCategory] = useState("");
-  const [expenses, setExpenses] = useState([
-    {
-      id: 1,
-      description: "Bee the Killer of Cats",
-      amount: 5,
-      category: "Entertainment",
-    },
-    { id: 2, description: "dog food", amount: 4, category: "Groceries" },
-    {
-      id: 3,
-      description: "Mickey Mouse",
-      amount: 3,
-      category: "Entertainment",
-    },
-    { id: 4, description: "cat food", amount: 2, category: "Groceries" },
-    { id: 5, description: "domestic bees", amount: 1, category: "Utilities" },
-    { id: 6, description: "Dove", amount: 6, category: "Entertainment" },
-  ]);
+  const {users, error, isLoading, setError, setUsers} = useUsers();
+  const deleteUser = (user: User) => {
+    const originalUsers = [...users];
+    setUsers(users.filter((u) => u.id !== user.id));
 
-  const visibleExpenses = selecteCategory
-    ? expenses.filter((e) => e.category === selecteCategory)
-    : expenses;
+    userService.delete(user.id).catch((err) => {
+      setError(err.message);
+      setUsers(originalUsers);
+    });
+  };
+
+  const addUser = () => {
+    const originalUsers = [...users];
+    const newUser = { id: 0, name: "Mosh" };
+    setUsers([...users, newUser]);
+    userService
+      .create(newUser)
+      .then(({ data: savedUser }) => setUsers([savedUser, ...users]))
+      .catch((err) => {
+        setError(err.message);
+        setUsers(originalUsers);
+      });
+  };
+
+  const updateUser = (user: User) => {
+    const originalUsers = [...users];
+    const updatedUser = { ...user, name: user.name + "!" };
+    setUsers(users.map((u) => (u.id === user.id ? updatedUser : u)));
+
+    userService.update(updatedUser).catch((err) => {
+      setError(err.message);
+      setUsers(originalUsers);
+    });
+  };
 
   return (
-    <div>
-      <div className="mb-3">
-        <ExpenseForm onSubmit={(newExpense) => setExpenses([...expenses, {...newExpense, id: expenses.length + 1}])} />
-      </div>
-      <div className="mb-3">
-        <ExpenseFilter
-          onSelectCategory={(category) => setSelectedCategory(category)}
-        />
-      </div>
-      <ExpenseList
-        expenses={visibleExpenses}
-        onDelete={(id) => setExpenses(expenses.filter((e) => e.id !== id))}
-      />
-    </div>
+    <>
+      {error && <p className="text-danger">{error}</p>}
+      {isLoading && <div className="spinner-border"></div>}
+      <button className="btn btn-primary mb-3" onClick={addUser}>
+        Add user
+      </button>
+      <ul className="list-group">
+        {users.map((user) => (
+          <li
+            key={user.id}
+            className="list-group-item d-flex justify-content-between"
+          >
+            {user.name}
+            <div>
+              <button
+                className="btn btn-secondary mx-1"
+                onClick={() => updateUser(user)}
+              >
+                Update
+              </button>
+              <button
+                className="btn btn-outline-danger"
+                onClick={() => deleteUser(user)}
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 export default App;
